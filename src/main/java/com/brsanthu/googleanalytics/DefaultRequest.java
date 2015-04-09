@@ -53,6 +53,13 @@ import java.util.UUID;
  * {@link GoogleAnalytics#setDefaultRequest(DefaultRequest)} method.
  *
  * @author Santhosh Kumar
+ *
+ * This copy of google-analytics-java is a back port of version 1.1.2 of the library.
+ * This backport removes the slf4j dependency, and modifies the code to work with the
+ * 4.1 version of the Apache http client library.
+ *
+ * Original sources can be found at https://github.com/brsanthu/google-analytics-java.
+ * All copyrights retained by original authors.
  */
 public class DefaultRequest extends GoogleAnalyticsRequest<DefaultRequest> {
 

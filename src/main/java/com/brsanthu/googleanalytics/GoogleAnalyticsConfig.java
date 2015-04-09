@@ -25,6 +25,13 @@ package com.brsanthu.googleanalytics;
  * <code>new GoogleAnalyticsConfig().setMaxThreads(2).setThreadNameFormat("name");</code>
  *
  * @author Santhosh Kumar
+ *
+ * This copy of google-analytics-java is a back port of version 1.1.2 of the library.
+ * This backport removes the slf4j dependency, and modifies the code to work with the
+ * 4.1 version of the Apache http client library.
+ *
+ * Original sources can be found at https://github.com/brsanthu/google-analytics-java.
+ * All copyrights retained by original authors.
  */
 public class GoogleAnalyticsConfig {
   private String threadNameFormat = "googleanalytics-thread-{0}";
