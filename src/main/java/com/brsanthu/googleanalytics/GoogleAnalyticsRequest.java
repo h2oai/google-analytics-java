@@ -1405,7 +1405,7 @@ public class GoogleAnalyticsRequest<T> {
    * <p>
    * <strong>Required for all hit types.</strong>
    * </p>
-   * <p>The type of hit. Must be one of 'pageview', 'appview', 'event', 'transaction', 'item', 'social', 'exception', 'timing'.</p>
+   * <p>The type of hit. Must be one of 'pageview', 'screenview', 'event', 'transaction', 'item', 'social', 'exception', 'timing'.</p>
    * <table border="1">
    * <tbody>
    * <tr>
@@ -1651,7 +1651,7 @@ public class GoogleAnalyticsRequest<T> {
    * <p>
    * Optional.
    * </p>
-   * <p>If not specified, this will default to the unique URL of the page by either using the &amp;dl parameter as-is or assembling it from &amp;dh and &amp;dp. App tracking makes use of this for the 'Screen Name' of the appview hit.</p>
+   * <p>If not specified, this will default to the unique URL of the page by either using the &amp;dl parameter as-is or assembling it from &amp;dh and &amp;dp. App tracking makes use of this for the 'Screen Name' of the screenview hit.</p>
    * <table border="1">
    * <tbody>
    * <tr>

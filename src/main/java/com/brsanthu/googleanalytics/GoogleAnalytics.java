@@ -256,8 +256,8 @@ public class GoogleAnalytics {
     if ("pageview".equalsIgnoreCase(hitType)) {
       stats.pageViewHit();
 
-    } else if ("appview".equalsIgnoreCase(hitType)) {
-      stats.appViewHit();
+    } else if ("screenview".equalsIgnoreCase(hitType)) {
+      stats.screenViewHit();
 
     } else if ("event".equalsIgnoreCase(hitType)) {
       stats.eventHit();

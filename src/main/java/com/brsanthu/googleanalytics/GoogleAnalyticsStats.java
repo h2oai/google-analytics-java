@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GoogleAnalyticsStats {
   private AtomicLong pageViewHits = new AtomicLong();
   private AtomicLong eventHits = new AtomicLong();
-  private AtomicLong appViewHits = new AtomicLong();
+  private AtomicLong screenViewHits = new AtomicLong();
   private AtomicLong itemHits = new AtomicLong();
   private AtomicLong transactionHits = new AtomicLong();
   private AtomicLong timingHits = new AtomicLong();
@@ -45,8 +45,8 @@ public class GoogleAnalyticsStats {
     eventHits.incrementAndGet();
   }
 
-  void appViewHit() {
-    appViewHits.incrementAndGet();
+  void screenViewHit() {
+    screenViewHits.incrementAndGet();
   }
 
   void itemHit() {
@@ -73,8 +73,8 @@ public class GoogleAnalyticsStats {
     return eventHits.get();
   }
 
-  public long getAppViewHits() {
-    return appViewHits.get();
+  public long getScreenViewHits() {
+    return screenViewHits.get();
   }
 
   public long getItemHits() {
@@ -107,9 +107,9 @@ public class GoogleAnalyticsStats {
       builder.append(eventHits);
       builder.append(", ");
     }
-    if (appViewHits != null) {
-      builder.append("appViewHits=");
-      builder.append(appViewHits);
+    if (screenViewHits != null) {
+      builder.append("screenViewHits=");
+      builder.append(screenViewHits);
       builder.append(", ");
     }
     if (itemHits != null) {

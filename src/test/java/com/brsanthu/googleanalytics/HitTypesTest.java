@@ -9,7 +9,7 @@ public class HitTypesTest {
   @Test
   public void testHitTypes() throws Exception {
     assertEquals("item", new ItemHit().hitType());
-    assertEquals("appview", new AppViewHit().hitType());
+    assertEquals("screenview", new ScreenViewHit().hitType());
     assertEquals("event", new EventHit().hitType());
     assertEquals("exception", new ExceptionHit().hitType());
     assertEquals("pageview", new PageViewHit().hitType());
