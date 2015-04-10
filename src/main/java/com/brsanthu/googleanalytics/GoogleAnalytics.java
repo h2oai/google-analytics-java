@@ -42,7 +42,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.HttpResponse;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -136,7 +136,7 @@ public class GoogleAnalytics {
       return response;
     }
 
-    BasicHttpResponse httpResponse = null;
+    HttpResponse httpResponse = null;
     try {
       List<NameValuePair> postParms = new ArrayList<NameValuePair>();
 
@@ -157,7 +157,7 @@ public class GoogleAnalytics {
       } catch (UnsupportedEncodingException e) { /*Log.warn("This systems doesn't support UTF-8!");*/ }
 
       try {
-        httpResponse = (BasicHttpResponse) httpClient.execute(httpPost);
+        httpResponse = httpClient.execute(httpPost);
       } catch (ClientProtocolException e) {
         //logger.trace("GA connectivity had a problem or the connectivity was aborted.  "+e.toString());
       } catch (IOException e) {
