@@ -45,6 +45,8 @@ import static com.brsanthu.googleanalytics.GoogleAnalyticsParameter.USER_TIMING_
 import static com.brsanthu.googleanalytics.GoogleAnalyticsParameter.USER_TIMING_TIME;
 import static com.brsanthu.googleanalytics.GoogleAnalyticsParameter.USER_TIMING_VARIABLE_NAME;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.UUID;
 
 /**
@@ -61,9 +63,7 @@ import java.util.UUID;
  * Original sources can be found at https://github.com/brsanthu/google-analytics-java.
  * All copyrights retained by original authors.
  */
-public class DefaultRequest extends GoogleAnalyticsRequest<DefaultRequest> {
-
-  private final static String DEFAULT_CLIENT_ID = UUID.randomUUID().toString();
+public class DefaultRequest extends GoogleAnalyticsRequest<DefaultRequest>{
 
   public DefaultRequest() {
     this(null, null, null, null);
@@ -74,12 +74,19 @@ public class DefaultRequest extends GoogleAnalyticsRequest<DefaultRequest> {
   }
 
   public DefaultRequest(String hitType, String trackingId, String appName, String appVersion) {
+    String cId;
     hitType(isEmpty(hitType) ? "pageview" : hitType);
     trackingId(trackingId);
     applicationName(appName);
     applicationVersion(appVersion);
 
-    clientId(DEFAULT_CLIENT_ID);
+    try { // Use MAC addr and user id to hash into a UUID
+      cId = UUID.nameUUIDFromBytes((InetAddress.getLocalHost().getHostAddress().toString()+System.getProperty("user.name")).getBytes()).toString();
+    } catch (UnknownHostException e) {
+      cId = UUID.nameUUIDFromBytes(System.getProperty("user.name").getBytes()).toString();
+    }
+
+    clientId(cId);
   }
 
   /**

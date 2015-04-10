@@ -17,6 +17,7 @@ import static com.brsanthu.googleanalytics.GaUtils.isEmpty;
 import static com.brsanthu.googleanalytics.GaUtils.isNotEmpty;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
@@ -34,21 +35,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is the main class of this library that accepts the requests from clients and
@@ -74,11 +75,10 @@ import org.slf4j.LoggerFactory;
 public class GoogleAnalytics {
 
   private static final Charset UTF8 = Charset.forName("UTF-8");
-  private static final Logger logger = LoggerFactory.getLogger(GoogleAnalytics.class);
 
   private GoogleAnalyticsConfig config = null;
   private DefaultRequest defaultRequest = null;
-  private CloseableHttpClient httpClient = null;
+  private HttpClient httpClient = null;
   private ThreadPoolExecutor executor = null;
   private GoogleAnalyticsStats stats = new GoogleAnalyticsStats();
 
@@ -103,10 +103,9 @@ public class GoogleAnalytics {
       config.getRequestParameterDiscoverer().discoverParameters(config, defaultRequest);
     }
 
-    logger.info("Initializing Google Analytics with config=" + config + " and defaultRequest=" + defaultRequest);
-
     this.config = config;
     this.defaultRequest = defaultRequest;
+    this.defaultRequest.userAgent(config.getUserAgent());
     this.httpClient = createHttpClient(config);
   }
 
@@ -126,7 +125,7 @@ public class GoogleAnalytics {
     this.defaultRequest = request;
   }
 
-  public void setHttpClient(CloseableHttpClient httpClient) {
+  public void setHttpClient(HttpClient httpClient) {
     this.httpClient = httpClient;
   }
 
@@ -137,11 +136,9 @@ public class GoogleAnalytics {
       return response;
     }
 
-    CloseableHttpResponse httpResponse = null;
+    BasicHttpResponse httpResponse = null;
     try {
       List<NameValuePair> postParms = new ArrayList<NameValuePair>();
-
-      logger.debug("Processing " + request);
 
       //Process the parameters
       processParameters(request, postParms);
@@ -152,16 +149,28 @@ public class GoogleAnalytics {
       //Process custom metrics
       processCustomMetricParameters(request, postParms);
 
-      logger.debug("Processed all parameters and sending the request " + postParms);
+      //logger.debug("GA Processed all parameters and sending the request " + postParms);
 
       HttpPost httpPost = new HttpPost(config.getUrl());
-      httpPost.setEntity(new UrlEncodedFormEntity(postParms, UTF8));
+      try {
+        httpPost.setEntity(new UrlEncodedFormEntity(postParms, "UTF-8"));
+      } catch (UnsupportedEncodingException e) { /*Log.warn("This systems doesn't support UTF-8!");*/ }
 
-      httpResponse = (CloseableHttpResponse) httpClient.execute(httpPost);
+      try {
+        httpResponse = (BasicHttpResponse) httpClient.execute(httpPost);
+      } catch (ClientProtocolException e) {
+        //logger.trace("GA connectivity had a problem or the connectivity was aborted.  "+e.toString());
+      } catch (IOException e) {
+        //logger.trace("GA connectivity suffered a protocol error.  "+e.toString());
+      }
+
+      //logger.debug("GA response: " +httpResponse.toString());
       response.setStatusCode(httpResponse.getStatusLine().getStatusCode());
       response.setPostedParms(postParms);
 
-      EntityUtils.consumeQuietly(httpResponse.getEntity());
+      try {
+        EntityUtils.consume(httpResponse.getEntity());
+      } catch (IOException e) {/*consume quietly*/}
 
       if (config.isGatherStats()) {
         gatherStats(request);
@@ -169,15 +178,9 @@ public class GoogleAnalytics {
 
     } catch (Exception e) {
       if (e instanceof UnknownHostException) {
-        logger.warn("Coudln't connect to Google Analytics. Internet may not be available. " + e.toString());
+        //logger.trace("Coudln't connect to GA. Internet may not be available. " + e.toString());
       } else {
-        logger.warn("Exception while sending the Google Analytics tracker request " + request, e);
-      }
-    } finally {
-      try {
-        httpResponse.close();
-      } catch (Exception e2) {
-        //ignore
+        //logger.trace("Exception while sending the GA tracker request: " + request +".  "+ e.toString());
       }
     }
 
@@ -287,7 +290,7 @@ public class GoogleAnalytics {
             return post(request);
           }
         } catch (Exception e) {
-          logger.warn("Request Provider (" + requestProvider + ") thrown exception " + e.toString() + " and hence nothing is posted to GA.");
+//          logger.warn("Request Provider (" + requestProvider + ") thrown exception " + e.toString() + " and hence nothing is posted to GA.");
         }
 
         return null;
@@ -316,36 +319,32 @@ public class GoogleAnalytics {
     } catch (Exception e) {
       //ignore
     }
-
-    try {
-      httpClient.close();
-    } catch (IOException e) {
-      //ignore
-    }
   }
 
-  protected CloseableHttpClient createHttpClient(GoogleAnalyticsConfig config) {
-    PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+  protected HttpClient createHttpClient(GoogleAnalyticsConfig config) {
+    ThreadSafeClientConnManager connManager = new ThreadSafeClientConnManager();
     connManager.setDefaultMaxPerRoute(getDefaultMaxPerRoute(config));
 
-    HttpClientBuilder builder = HttpClients.custom().setConnectionManager(connManager);
+    BasicHttpParams params = new BasicHttpParams();
 
     if (isNotEmpty(config.getUserAgent())) {
-      builder.setUserAgent(config.getUserAgent());
+      params.setParameter(CoreProtocolPNames.USER_AGENT, config.getUserAgent());
     }
 
     if (isNotEmpty(config.getProxyHost())) {
-      builder.setProxy(new HttpHost(config.getProxyHost(), config.getProxyPort()));
-
-      if (isNotEmpty(config.getProxyUserName())) {
-        BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(new AuthScope(config.getProxyHost(), config.getProxyPort()),
-                new UsernamePasswordCredentials(config.getProxyUserName(), config.getProxyPassword()));
-        builder.setDefaultCredentialsProvider(credentialsProvider);
-      }
+      params.setParameter(ConnRoutePNames.DEFAULT_PROXY, new HttpHost(config.getProxyHost(), config.getProxyPort()));
     }
 
-    return builder.build();
+    DefaultHttpClient client = new DefaultHttpClient(connManager, params);
+
+    if (isNotEmpty(config.getProxyUserName())) {
+      BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+      credentialsProvider.setCredentials(new AuthScope(config.getProxyHost(), config.getProxyPort()),
+              new UsernamePasswordCredentials(config.getProxyUserName(), config.getProxyPassword()));
+      client.setCredentialsProvider(credentialsProvider);
+    }
+
+    return client;
   }
 
   protected int getDefaultMaxPerRoute(GoogleAnalyticsConfig config) {
@@ -374,6 +373,10 @@ public class GoogleAnalytics {
   public void resetStats() {
     stats = new GoogleAnalyticsStats();
   }
+
+  public void setEnabled(boolean b) { config.setEnabled(b);}
+  public boolean getEnabled() { return config.isEnabled();}
+
 }
 
 class GoogleAnalyticsThreadFactory implements ThreadFactory {

@@ -3,8 +3,8 @@ package com.brsanthu.googleanalytics;
 import static com.brsanthu.googleanalytics.GaUtils.appendSystemProperty;
 import static com.brsanthu.googleanalytics.GaUtils.isEmpty;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 /**
  * Default request parameter discoverer. Discovers following parameters.
@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
  * All copyrights retained by original authors.
  */
 public class DefaultRequestParameterDiscoverer implements RequestParameterDiscoverer {
-
-  private static final Logger logger = LoggerFactory.getLogger(DefaultRequestParameterDiscoverer.class);
 
   @Override
   public DefaultRequest discoverParameters(GoogleAnalyticsConfig config, DefaultRequest request) {
@@ -47,7 +45,7 @@ public class DefaultRequestParameterDiscoverer implements RequestParameterDiscov
       }
 
     } catch (Exception e) {
-      logger.warn("Exception while deriving the System properties for request " + request, e);
+//      logger.warn("Exception while deriving the System properties for request " + request, e);
     }
 
     return request;

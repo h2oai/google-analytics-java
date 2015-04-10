@@ -42,7 +42,11 @@ public class EventHit extends GoogleAnalyticsRequest<EventHit> {
     this(eventCategory, eventAction, null, null);
   }
 
-  public EventHit(String eventCategory, String eventAction, String eventLabel, Integer eventValue) {
+  public EventHit (String eventCategory, String eventAction, String eventLabel) {
+    this(eventCategory, eventAction, eventLabel, null);
+  }
+
+  public EventHit (String eventCategory, String eventAction, String eventLabel, Integer eventValue) {
     super("event");
     eventCategory(eventCategory);
     eventAction(eventAction);
