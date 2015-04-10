@@ -6,7 +6,7 @@
         <version>7</version>
     </parent>
 
-    <groupId>com.brsanthu</groupId>
+    <groupId>ai.h2o</groupId>
     <artifactId>google-analytics-java</artifactId>
     <version>1.1.2-H2O-CUSTOM</version>
     <packaging>jar</packaging>
@@ -137,35 +137,23 @@
         </dependency>
     </dependencies>
     <name>Google Analytics Java API</name>
-    <url>https://github.com/brsanthu/google-analytics-java</url>
+    <url>https://github.com/h2oai/google-analytics-java</url>
     <description>This is Java API for Google Analytics (Measurement Protocol). More information about the protocol is available at https://developers.google.com/analytics/devguides/collection/protocol/v1/.</description>
     <inceptionYear>Sep 2013</inceptionYear>
     <organization>
-        <url>http://www.brsanthu.com</url>
-        <name>brsanthu Inc</name>
+        <url>http://h2o.ai</url>
+        <name>H20.ai</name>
     </organization>
     <scm>
-        <url>https://github.com/brsanthu/google-analytics-java</url>
-        <connection>scm:git:git@github.com:brsanthu/google-analytics-java</connection>
-        <developerConnection>scm:git:git@github.com:brsanthu/google-analytics-java</developerConnection>
+        <url>https://github.com/h2oai/google-analytics-java</url>
+        <connection>scm:git:git@github.com:h2oai/google-analytics-java</connection>
+        <developerConnection>scm:git:git@github.com:h2oai/google-analytics-java</developerConnection>
         <tag>google-analytics-java-1.1.2</tag>
     </scm>
     <issueManagement>
-        <system>github.com</system>
-        <url>https://github.com/brsanthu/google-analytics-java/issues</url>
+        <system>Jira</system>
+        <url>https://jira.h2o.ai/</url>
     </issueManagement>
-    <developers>
-        <developer>
-            <name>Santhosh Kumar</name>
-            <organizationUrl>http://www.brsanthu.com</organizationUrl>
-            <url>http://www.brsanthu.com</url>
-            <roles>
-                <role>Initiator</role>
-                <role>Commiter</role>
-            </roles>
-            <email>brsanthu at gmail</email>
-        </developer>
-    </developers>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
